@@ -21,18 +21,23 @@ Simulador interactivo que analiza el comportamiento de la frecuencia relativa en
 
 ```
 simulador-moneda/
+├── .devcontainer/
+│   └── devcontainer.json      # Configuración para Codespaces y contenedores de VS Code
 ├── app.py                    # Capa de presentación (Streamlit + Plotly)
 ├── core/
 │   ├── __init__.py           # Exportación del paquete matemático
-│   └── simulation.py         # Lógica pura de simulación y evaluación estadística
+│   ├── simulation.py         # Lógica pura de simulación y evaluación estadística
+│   └── formatting.py         # Formateo de números para la interfaz
 ├── tests/
 │   ├── __init__.py
-│   └── test_simulation.py    # Suite completa de pruebas unitarias (18 tests)
+│   ├── test_formatting.py    # Pruebas de formateo
+│   └── test_simulation.py    # Suite de pruebas de simulación
 ├── pytest.ini                # Configuración de pytest (pythonpath y testpaths)
 ├── requirements.txt          # Dependencias del proyecto
 ├── CONSIGNA.md               # Requerimientos originales de la cátedra
-├── PLAN.md                   # Plan de arquitectura y diseño detallado
-└── README.md                 # Guía de instalación, uso y guion de exposición
+├── GUION.md                  # Guion para la exposición oral
+├── .streamlit/config.toml    # Tema y configuración visual de Streamlit
+└── README.md                 # Documentación del proyecto
 ```
 
 ---
@@ -67,17 +72,27 @@ streamlit run app.py
 
 La aplicación se abrirá automáticamente en tu navegador web (por defecto en `http://localhost:8501`).
 
+La barra lateral comienza colapsada y contiene la configuración de la moneda. Desde allí
+se puede activar el modo de prueba y ajustar la probabilidad de obtener cara.
+
+### Desarrollo con GitHub Codespaces
+
+El repositorio incluye una configuración en `.devcontainer/devcontainer.json`.
+Al abrirlo en GitHub Codespaces o VS Code Dev Containers, se instalan las dependencias
+y la aplicación Streamlit se inicia automáticamente en el puerto `8501`.
+
 ---
 
 ## 🧪 Pruebas Unitarias
 
-La suite de pruebas valida exhaustivamente la lógica matemática, la consistencia del historial acumulado, el margen dinámico y el manejo de excepciones:
+La suite de 21 pruebas valida la lógica matemática, el formateo de números, la consistencia
+del historial acumulado, el margen dinámico y el manejo de excepciones:
 
 ```bash
 pytest -v
 ```
 
-Todas las 18 pruebas deben estar en estado **PASSED**.
+Todas las pruebas deben estar en estado **PASSED**.
 
 ---
 
@@ -101,29 +116,6 @@ $$\text{Margen de azar} = \frac{1}{\sqrt{n}} \approx 1,96 \cdot \sqrt{\frac{0,5 
 
 ---
 
-## 🎤 Guion Sugerido para la Exposición Oral (3 a 5 min)
-
-1. **Introducción teórica (30 s):**
-   * Abrir la pestaña **📖 Teoría**.
-   * Explicar el concepto de **experimento aleatorio** e **independencia** en el tiro de monedas.
-   * Diferenciar **probabilidad clásica** ($P = 0,50$ *a priori*) de la **frecuencia relativa** ($f = \text{caras}/n$ *a posteriori*).
-2. **Demostración con Moneda Justa (1 min):**
-   * En la pestaña **🪙 Simulador**, lanzar $n = 10$: notar la alta dispersión y el margen amplio.
-   * Lanzar $n = 10.000$: señalar cómo la curva se adhiere a la línea teórica de $0,50$ y queda contenida en el embudo sombreado de azar.
-3. **Comparativa entre tamaños (1 min):**
-   * Pasar a la pestaña **📊 Comparar cantidades** y presionar *"Ejecutar las 4 cantidades"*.
-   * Mostrar en la tabla y en el gráfico cómo tanto el margen de azar como la diferencia observada decrecen monótonamente hacia cero (**Ley de los Grandes Números**).
-4. **Demostración con Moneda Trucada (1 min):**
-   * En el sidebar, activar el **Modo prueba** y fijar la probabilidad en $0,60$.
-   * Volver a la pestaña **🪙 Simulador**:
-     * Con $n = 10$, mostrar que la moneda suele ser declarada "Equilibrada" porque el margen por azar es muy ancho y la app advierte sobre la baja capacidad de detección.
-     * Con $n = 1.000$ o $n = 10.000$, relanzar y mostrar cómo el veredicto pasa a "Sesgada" con certeza casi absoluta.
-5. **Arquitectura y Calidad de Código (30 s):**
-   * Mencionar la separación de responsabilidades: `core/simulation.py` sin dependencias gráficas.
-   * Ejecutar `pytest -v` en terminal para exhibir la verificación automatizada en verde.
-
----
-
 ## 📋 Trazabilidad con la Consigna
 
 | Requerimiento de la Consigna | Implementación en el Proyecto |
@@ -136,7 +128,7 @@ $$\text{Margen de azar} = \frac{1}{\sqrt{n}} \approx 1,96 \cdot \sqrt{\frac{0,5 
 | ¿Es equilibrada? + justificación | Función `evaluate_fairness` con veredicto prioritario, explicación en lenguaje natural y margen $1/\sqrt{n}$. |
 | Req. Común 1: Ingresar/modificar datos | Selector de tamaño de muestra y slider de sesgo en el sidebar. |
 | Req. Común 2: Resultados claros e interpretados | Veredicto destacado al inicio, rótulo del experimento y advertencia ante bajo $n$. |
-| Req. Común 3: Cálculos matemáticamente correctos | Módulo desacoplado `core/simulation.py` validado con 18 tests en `pytest`. |
+| Req. Común 3: Cálculos matemáticamente correctos | Módulo desacoplado `core/simulation.py` validado con 21 tests en `pytest`. |
 | Req. Común 4: Conceptos de probabilidad integrados | Pestaña dedicada *Teoría* con definiciones, fórmulas LaTeX y límites del modelo. |
 | Req. Común 5: Ejemplos de prueba | Modo interactivo de moneda trucada en el sidebar y suite de pruebas unitarias. |
-| Req. Común 6: Preparación para exposición oral | Pestaña *Teoría* estructurada y guion guiado paso a paso en este documento. |
+| Req. Común 6: Preparación para exposición oral | Pestaña *Teoría* estructurada y guion guiado paso a paso en `GUION.md`. |
