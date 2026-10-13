@@ -25,9 +25,11 @@ simulador-moneda/
 ├── app.py                    # Capa de presentación (Streamlit)
 ├── core/
 │   ├── __init__.py
+│   ├── formatting.py        # Formato numérico en español
 │   └── simulation.py         # Lógica matemática (sin Streamlit)
 ├── tests/
-│   └── test_simulation.py    # Pruebas unitarias (pytest)
+│   ├── test_simulation.py    # Pruebas unitarias (pytest)
+│   └── test_formatting.py    # Pruebas de formato numérico
 ├── pytest.ini                # pythonpath = .
 ├── requirements.txt          # streamlit, plotly, pandas, numpy, pytest
 └── README.md                 # Cómo instalar, ejecutar y testear
@@ -195,7 +197,7 @@ Muestra cómo cambia la diferencia con n (el corazón de "comportamiento de la f
 - Botón **"Ejecutar las 4 cantidades"** (usa la moneda del sidebar), resultado guardado en `session_state["comparativa"]`.
 - Tabla: n · caras · frecuencia de caras · |diferencia| · margen 1/√n · veredicto.
 - Un gráfico pequeño: |diferencia| y margen vs n (eje X logarítmico), donde se ve que ambas se achican.
-- Frase de interpretación fija: *"Al aumentar n, la frecuencia relativa se acerca a la probabilidad teórica y las diferencias por azar se reducen."*
+- Frase de interpretación dependiente de la moneda ejecutada: si es justa, *"Al aumentar n, la frecuencia relativa se acerca a la probabilidad teórica y las diferencias por azar se reducen."*; si es trucada, explica que se estabiliza alrededor de la probabilidad real y la diferencia con la teórica no desaparece.
 
 ### 3.7 Pestaña 3: Teoría
 
@@ -204,7 +206,7 @@ Contenido breve y con ejemplos de esta app (no definiciones copiadas):
 - **Experimento aleatorio:** resultado impredecible individualmente, pero con resultados posibles conocidos (cara, cruz). Cada lanzamiento es independiente.
 - **Probabilidad clásica:** P(A) = casos favorables / casos posibles (resultados equiprobables). Cara: 1/2 = 0,5.
 - **Probabilidad frecuencial:** P(A) ≈ frecuencia relativa f = caras/n, y se estabiliza al crecer n.
-- **Ley de los grandes números:** al aumentar n, f se acerca a la probabilidad teórica.
+- **Ley de los grandes números:** al aumentar n, f se acerca a la probabilidad real de la moneda (0,50 si es justa). En modo prueba, la curva se estabiliza en el valor real de la moneda trucada (por ejemplo, 0,60), no en 0,50.
 - **Cómo decide la app:** explicación de `margen = 1/√n` en tres líneas, y el límite: *"Es un criterio práctico, no una prueba formal; con pocos lanzamientos no puede detectar sesgos chicos."*
 
 ### 3.8 Gráfico (Plotly)

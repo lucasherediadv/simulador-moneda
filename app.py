@@ -12,10 +12,12 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core.simulation import (
+    comparison_interpretation,
     evaluate_fairness,
     run_comparison,
     run_simulation,
 )
+from core.formatting import fmt_dec, fmt_int
 
 # ==============================================================================
 # 3.2 Configuración global
@@ -24,6 +26,7 @@ st.set_page_config(
     page_title="¿La moneda está trucada?",
     page_icon="🪙",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 
@@ -104,12 +107,19 @@ def create_simulation_plot(
         )
     )
 
+    xaxis_config = {"type": "log" if log_scale else "linear"}
+    if log_scale:
+        powers = [10**power for power in range(0, 20) if 10**power <= n_flips]
+        xaxis_config.update(tickvals=powers, ticktext=[fmt_int(value) for value in powers])
+    else:
+        xaxis_config["tickformat"] = ",d"
+
     fig.update_layout(
         title="Evolución de la frecuencia relativa acumulada de caras",
         xaxis_title="Número de lanzamiento",
         yaxis_title="Frecuencia relativa acumulada",
         yaxis=dict(range=[-0.02, 1.02]),
-        xaxis=dict(type="log" if log_scale else "linear"),
+        xaxis=xaxis_config,
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -119,6 +129,8 @@ def create_simulation_plot(
         ),
         margin=dict(l=40, r=20, t=60, b=40),
         hovermode="closest",
+        separators=",.",
+        font=dict(size=14),
     )
 
     return fig
@@ -127,16 +139,16 @@ def create_simulation_plot(
 def format_comparison_table(df: pd.DataFrame) -> pd.DataFrame:
     """Formatea la tabla comparativa con separador de miles y comas decimales."""
     formatted = pd.DataFrame()
-    formatted["n"] = df["n"].apply(lambda val: f"{val:,}".replace(",", "."))
-    formatted["Caras"] = df["caras"].apply(lambda val: f"{val:,}".replace(",", "."))
+    formatted["n"] = df["n"].apply(fmt_int)
+    formatted["Caras"] = df["caras"].apply(fmt_int)
     formatted["Frecuencia de caras"] = df["frec_cara"].apply(
-        lambda val: f"{val:.4f}".replace(".", ",")
+        lambda val: fmt_dec(val, 4)
     )
     formatted["|Diferencia con 0,5|"] = df["diferencia_abs"].apply(
-        lambda val: f"{val:.4f}".replace(".", ",")
+        lambda val: fmt_dec(val, 4)
     )
     formatted["Margen esperado (±1/√n)"] = df["margen"].apply(
-        lambda val: f"{val:.4f}".replace(".", ",")
+        lambda val: fmt_dec(val, 4)
     )
     formatted["Veredicto"] = df["veredicto"]
     return formatted
@@ -180,8 +192,8 @@ def create_comparison_plot(df: pd.DataFrame) -> go.Figure:
         yaxis_title="Diferencia respecto a 0,5",
         xaxis=dict(
             type="log",
-            tickvals=[10, 100, 1000, 10000],
-            ticktext=["10", "100", "1.000", "10.000"],
+            tickvals=[10**power for power in range(0, 20) if 10**power <= int(df["n"].max())],
+            ticktext=[fmt_int(10**power) for power in range(0, 20) if 10**power <= int(df["n"].max())],
         ),
         yaxis=dict(range=[-0.01, max_val]),
         legend=dict(
@@ -193,6 +205,8 @@ def create_comparison_plot(df: pd.DataFrame) -> go.Figure:
         ),
         margin=dict(l=40, r=20, t=60, b=40),
         hovermode="x unified",
+        separators=",.",
+        font=dict(size=14),
     )
 
     return fig
@@ -230,7 +244,7 @@ st.markdown(
 )
 
 if test_mode:
-    coin_badge = f"Moneda trucada (P(cara) = {bias:.2f})".replace(".", ",")
+    coin_badge = f"Moneda trucada (P(cara) = {fmt_dec(bias)})"
     st.warning(f"🪙 **Moneda activa:** {coin_badge}")
 else:
     coin_badge = "Moneda justa"
@@ -264,7 +278,7 @@ with tab_sim:
                 options=[10, 100, 1000, 10000],
                 index=1,
                 horizontal=True,
-                format_func=lambda x: f"{x:,}".replace(",", "."),
+                format_func=fmt_int,
             )
         with col_ctrl2:
             launch_clicked = st.button(
@@ -281,14 +295,12 @@ with tab_sim:
         label_coin = (
             "moneda justa"
             if bias == 0.50
-            else f"moneda trucada (P(cara) = {bias:.2f})".replace(".", ",")
+            else f"moneda trucada (P(cara) = {fmt_dec(bias)})"
         )
         st.session_state["resultado"] = sim_res
         st.session_state["evaluacion"] = eval_res
         st.session_state["rotulo"] = (
-            f"Resultado de {n_flips_selected:,} lanzamientos · {label_coin}".replace(
-                ",", "."
-            )
+            f"Resultado de {fmt_int(n_flips_selected)} lanzamientos · {label_coin}"
         )
 
     # ② Estado vacío (antes del primer lanzamiento)
@@ -320,9 +332,9 @@ with tab_sim:
         # 3. Fila de métricas (conteos)
         col_m1, col_m2 = st.columns(2)
         with col_m1:
-            st.metric("Caras", f"{sim.heads:,}".replace(",", "."))
+            st.metric("Caras", fmt_int(sim.heads))
         with col_m2:
-            st.metric("Cruces", f"{sim.tails:,}".replace(",", "."))
+            st.metric("Cruces", fmt_int(sim.tails))
 
         # 4. Tabla comparativa
         df_table = pd.DataFrame(
@@ -330,12 +342,12 @@ with tab_sim:
                 "Resultado": ["Cara", "Cruz"],
                 "Prob. teórica": ["0,5000", "0,5000"],
                 "Frecuencia relativa": [
-                    f"{evaluation['freq_heads']:.4f}".replace(".", ","),
-                    f"{evaluation['freq_tails']:.4f}".replace(".", ","),
+                    fmt_dec(evaluation["freq_heads"], 4),
+                    fmt_dec(evaluation["freq_tails"], 4),
                 ],
                 "Diferencia": [
-                    f"{evaluation['freq_heads'] - 0.5:+.4f}".replace(".", ","),
-                    f"{evaluation['freq_tails'] - 0.5:+.4f}".replace(".", ","),
+                    fmt_dec(evaluation["freq_heads"] - 0.5, 4),
+                    fmt_dec(evaluation["freq_tails"] - 0.5, 4),
                 ],
             }
         )
@@ -374,9 +386,10 @@ with tab_comp:
         label_coin = (
             "moneda justa"
             if bias == 0.50
-            else f"moneda trucada (P(cara) = {bias:.2f})".replace(".", ",")
+            else f"moneda trucada (P(cara) = {fmt_dec(bias)})"
         )
         st.session_state["comparativa"] = df_comp
+        st.session_state["comparativa_bias"] = bias
         st.session_state["comparativa_rotulo"] = (
             f"Resultados para las 4 cantidades · {label_coin}"
         )
@@ -399,10 +412,9 @@ with tab_comp:
         fig_comp = create_comparison_plot(df_comp)
         st.plotly_chart(fig_comp, use_container_width=True)
 
-        # Frase de interpretación fija
+        comparison_bias = st.session_state.get("comparativa_bias", 0.5)
         st.info(
-            "💡 **Interpretación:** *Al aumentar n, la frecuencia relativa se acerca a la "
-            "probabilidad teórica y las diferencias por azar se reducen.*"
+            f"💡 **Interpretación:** *{comparison_interpretation(comparison_bias)}*"
         )
 
 # ==============================================================================
@@ -435,7 +447,7 @@ with tab_teoria:
                 "  $$P(\\text{Cara}) = \\frac{\\text{Casos favorables}}{\\text{Casos posibles}} = \\frac{1}{2} = 0,50$$\n\n"
                 "- **Probabilidad frecuencial (a posteriori):** Se aproxima mediante la experimentación empírica:\n\n"
                 "  $$f = \\frac{\\text{Caras observadas}}{n}$$\n\n"
-                "  La frecuencia relativa se estabiliza y aproxima a la probabilidad teórica al crecer $n$."
+                "  La frecuencia relativa se estabiliza y aproxima a la probabilidad real al crecer $n$."
             )
 
     with col_t2:
@@ -443,9 +455,13 @@ with tab_teoria:
             st.markdown("#### 📈 Ley de los Grandes Números")
             st.markdown(
                 "Al aumentar $n$, la frecuencia relativa de caras $f$ oscila con menor amplitud y "
-                "**se acerca a la probabilidad teórica** ($0,50$).\n\n"
+                "**se acerca a la probabilidad real de la moneda** ($0,50$ si es justa).\n\n"
                 "- Con **$n = 10$**, el azar produce desvíos amplios respecto al 50 %.\n"
-                "- Con **$n = 10.000$**, la frecuencia empírica se adhiere fuertemente a la probabilidad teórica."
+                "- Con **$n = 10.000$**, la frecuencia empírica se adhiere fuertemente a la probabilidad real de la moneda."
+            )
+            st.markdown(
+                "En el modo prueba la curva se estabiliza en el valor real de la moneda trucada "
+                "(por ejemplo 0,60), no en 0,50: así la aplicación puede detectar el sesgo."
             )
 
         with st.container(border=True):
