@@ -13,6 +13,8 @@ from typing import Any, Sequence
 import numpy as np
 import pandas as pd
 
+from core.formatting import fmt_dec, fmt_int, fmt_pct, fmt_pp
+
 
 @dataclass(frozen=True)
 class SimulationResult:
@@ -133,15 +135,15 @@ def evaluate_fairness(
 
     if is_fair:
         message = (
-            f"Con {n} lanzamientos, la frecuencia de caras fue {freq_heads:.2%}, a {difference:.2%} "
+            f"Con {fmt_int(n)} lanzamientos, la frecuencia de caras fue {fmt_pct(freq_heads)}, a {fmt_pp(difference)} "
             f"de la probabilidad teórica (50 %). Esa diferencia está dentro del margen que el azar "
-            f"explica (±{margin:.2%}), por lo que no hay evidencia de que la moneda esté trucada."
+            f"explica (±{fmt_pp(margin)}), por lo que no hay evidencia de que la moneda esté trucada."
         )
     else:
         message = (
-            f"Con {n} lanzamientos, la frecuencia de caras fue {freq_heads:.2%}, a {difference:.2%} "
+            f"Con {fmt_int(n)} lanzamientos, la frecuencia de caras fue {fmt_pct(freq_heads)}, a {fmt_pp(difference)} "
             f"de la probabilidad teórica (50 %). Esa diferencia supera el margen que el azar "
-            f"explica (±{margin:.2%}), por lo que es poco probable que se deba solo a la casualidad: "
+            f"explica (±{fmt_pp(margin)}), por lo que es poco probable que se deba solo a la casualidad: "
             f"la moneda parece sesgada."
         )
 
@@ -161,6 +163,22 @@ def evaluate_fairness(
         "message": message,
         "low_n_warning": low_n_warning,
     }
+
+
+def comparison_interpretation(bias: float) -> str:
+    """Explica la convergencia según la probabilidad real de la moneda."""
+    if abs(bias - 0.5) < 1e-9:
+        return (
+            "Al aumentar n, la frecuencia relativa se acerca a la probabilidad "
+            "teórica y las diferencias por azar se reducen."
+        )
+    return (
+        "Al aumentar n, la frecuencia relativa se estabiliza, pero alrededor "
+        f"de la probabilidad real de la moneda ({fmt_dec(bias)}) y no de 0,5. "
+        "Por eso la diferencia con la teórica no desaparece, mientras que el "
+        "margen del azar sí se achica: cuando n es suficientemente grande, el "
+        "criterio detecta el sesgo."
+    )
 
 
 def run_simulation(

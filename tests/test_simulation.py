@@ -7,6 +7,7 @@ import pytest
 from core.simulation import (
     error_margin,
     evaluate_fairness,
+    comparison_interpretation,
     relative_frequency,
     run_comparison,
     run_simulation,
@@ -40,6 +41,20 @@ def test_biased_coin_evaluation():
     assert result["difference"] == pytest.approx(0.200)
     assert result["low_n_warning"] is False
     assert "moneda parece sesgada" in result["message"]
+
+
+def test_fairness_message_uses_spanish_format_and_percentage_points():
+    result = evaluate_fairness(heads=6016, tails=3984)
+    assert "10.000" in result["message"]
+    assert "puntos porcentuales" in result["message"]
+    assert "60.16" not in result["message"]
+
+
+def test_comparison_interpretation_depends_on_bias():
+    assert "se reducen" in comparison_interpretation(0.5)
+    biased_text = comparison_interpretation(0.6)
+    assert "0,60" in biased_text
+    assert "no desaparece" in biased_text
 
 
 def test_small_n_is_lenient():
