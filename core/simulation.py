@@ -14,9 +14,6 @@ import numpy as np
 import pandas as pd
 
 
-MAX_FLIPS: int = 100_000
-
-
 @dataclass(frozen=True)
 class SimulationResult:
     """Resultado inmutable de una serie de lanzamientos de moneda."""
@@ -180,17 +177,14 @@ def run_simulation(
         SimulationResult con los conteos finales y el historial acumulado.
 
     Raises:
-        ValueError: Si n_flips está fuera de [1, MAX_FLIPS] o bias no está en [0, 1].
+        ValueError: Si n_flips < 1 o bias no está en [0, 1].
     """
     if (
         not isinstance(n_flips, (int, np.integer))
         or isinstance(n_flips, bool)
         or n_flips < 1
-        or n_flips > MAX_FLIPS
     ):
-        raise ValueError(
-            f"n_flips debe ser un entero en el rango [1, {MAX_FLIPS}], recibido: {n_flips}"
-        )
+        raise ValueError(f"n_flips debe ser un entero >= 1, recibido: {n_flips}")
 
     if (
         not isinstance(bias, (int, float, np.floating, np.integer))

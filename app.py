@@ -12,7 +12,6 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core.simulation import (
-    MAX_FLIPS,
     evaluate_fairness,
     run_comparison,
     run_simulation,
@@ -260,16 +259,12 @@ with tab_sim:
     with st.container(border=True):
         col_ctrl1, col_ctrl2 = st.columns([3, 1], vertical_alignment="bottom")
         with col_ctrl1:
-            radio_choice = st.radio(
+            n_flips_selected = st.radio(
                 "Cantidad de lanzamientos",
-                options=[10, 100, 1000, 10000, "Otra cantidad"],
+                options=[10, 100, 1000, 10000],
                 index=1,
                 horizontal=True,
-                format_func=lambda x: (
-                    f"{x:,}".replace(",", ".")
-                    if isinstance(x, (int, np.integer))
-                    else str(x)
-                ),
+                format_func=lambda x: f"{x:,}".replace(",", "."),
             )
         with col_ctrl2:
             launch_clicked = st.button(
@@ -277,20 +272,6 @@ with tab_sim:
                 type="primary",
                 use_container_width=True,
             )
-
-        if radio_choice == "Otra cantidad":
-            n_flips_selected = int(
-                st.number_input(
-                    "Ingresá una cantidad personalizada de lanzamientos",
-                    min_value=1,
-                    max_value=MAX_FLIPS,
-                    value=500,
-                    step=1,
-                    format="%d",
-                )
-            )
-        else:
-            n_flips_selected = int(radio_choice)
 
     # Disparador de simulación (guarda en session_state)
     if launch_clicked:

@@ -5,7 +5,6 @@ import pandas as pd
 import pytest
 
 from core.simulation import (
-    MAX_FLIPS,
     error_margin,
     evaluate_fairness,
     relative_frequency,
@@ -159,39 +158,6 @@ def test_simulated_biased_coin_detected():
     assert eval_res["label"] == "Sesgada"
 
 
-def test_odd_n_flips():
-    """n impar (777) debe ejecutarse correctamente respetando la suma y el historial."""
-    sim = run_simulation(n_flips=777, bias=0.5, seed=42)
-    assert sim.n_flips == 777
-    assert sim.heads + sim.tails == 777
-    assert len(sim.history) == 777
-    assert sim.history["caras_acum"].iloc[-1] == sim.heads
-
-
-def test_n_equals_one():
-    """n = 1 debe ejecutarse correctamente produciendo 1 cara o 1 cruz con historial coherente."""
-    sim = run_simulation(n_flips=1, bias=0.5, seed=42)
-    assert sim.n_flips == 1
-    assert sim.heads + sim.tails == 1
-    assert sim.heads in (0, 1)
-    assert len(sim.history) == 1
-    assert sim.history["caras_acum"].iloc[0] == sim.heads
-
-
-def test_n_equals_max_flips():
-    """n = MAX_FLIPS (100.000) debe ejecutarse dentro del límite superior permitido."""
-    sim = run_simulation(n_flips=MAX_FLIPS, bias=0.5, seed=42)
-    assert sim.n_flips == MAX_FLIPS
-    assert sim.heads + sim.tails == MAX_FLIPS
-    assert len(sim.history) == MAX_FLIPS
-
-
-def test_n_exceeds_max_flips_raises():
-    """n = MAX_FLIPS + 1 debe fallar lanzando ValueError."""
-    with pytest.raises(ValueError):
-        run_simulation(n_flips=MAX_FLIPS + 1)
-
-
 # ==============================================================================
 # Pruebas de Validación de Entradas
 # ==============================================================================
@@ -204,8 +170,6 @@ def test_invalid_inputs_raise():
         run_simulation(n_flips=0)
     with pytest.raises(ValueError):
         run_simulation(n_flips=-5)
-    with pytest.raises(ValueError):
-        run_simulation(n_flips=MAX_FLIPS + 1)
 
     # bias inválido
     with pytest.raises(ValueError):

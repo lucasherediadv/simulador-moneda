@@ -1,7 +1,6 @@
 """Módulo core para la lógica de simulación matemática."""
 
 from core.simulation import (
-    MAX_FLIPS,
     SimulationResult,
     error_margin,
     evaluate_fairness,
@@ -11,7 +10,6 @@ from core.simulation import (
 )
 
 __all__ = [
-    "MAX_FLIPS",
     "SimulationResult",
     "run_simulation",
     "relative_frequency",
