@@ -1,8 +1,8 @@
-# Ejercicio 2: ¿La moneda está trucada?
+# 🪙 Ejercicio 2: ¿La moneda está trucada?
 
 **Consigna:** Desarrolle una aplicación que permita simular lanzamientos de una moneda y analizar si los resultados obtenidos se aproximan a una distribución equilibrada.
 
-### Requerimientos Específicos
+### ⚙️ Requerimientos Específicos
 
 - Permitir realizar diferentes cantidades de lanzamientos, por ejemplo: 10, 100, 1.000 y 10.000.
 - Mostrar la cantidad de veces que salió cara y la cantidad de veces que salió cruz.
@@ -12,14 +12,14 @@
 - Responder si, de acuerdo con los resultados obtenidos, la moneda parece ser equilibrada y justificar brevemente la respuesta.
 - Presentar una aplicación funcional y resultados claros y ordenados.
 
-### Contenidos a Integrar
+### 📚 Contenidos a Integrar
 
 - Probabilidad clásica.
 - Experimento aleatorio.
 - Probabilidad frecuencial.
 - Interpretación y comportamiento de la frecuencia relativa.
 
-### Requisitos Comunes del Proyecto (Criterios de Evaluación)
+### 📋 Requisitos Comunes del Proyecto (Criterios de Evaluación)
 
 *Además de los requerimientos específicos, el proyecto debe cumplir con las siguientes pautas generales indicadas en el trabajo práctico:*
 
