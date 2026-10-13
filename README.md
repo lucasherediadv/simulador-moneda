@@ -27,7 +27,7 @@ simulador-moneda/
 │   └── simulation.py         # Lógica pura de simulación y evaluación estadística
 ├── tests/
 │   ├── __init__.py
-│   └── test_simulation.py    # Suite completa de pruebas unitarias (18 tests)
+│   └── test_simulation.py    # Suite completa de pruebas unitarias (22 tests)
 ├── pytest.ini                # Configuración de pytest (pythonpath y testpaths)
 ├── requirements.txt          # Dependencias del proyecto
 ├── CONSIGNA.md               # Requerimientos originales de la cátedra
@@ -77,7 +77,7 @@ La suite de pruebas valida exhaustivamente la lógica matemática, la consistenc
 pytest -v
 ```
 
-Todas las 18 pruebas deben estar en estado **PASSED**.
+Todas las **22 pruebas** deben estar en estado **PASSED**.
 
 ---
 
@@ -134,9 +134,9 @@ $$\text{Margen de azar} = \frac{1}{\sqrt{n}} \approx 1,96 \cdot \sqrt{\frac{0,5 
 | Probabilidad teórica de cara y cruz | Columna dedicada en tabla comparativa ($0,5000$) y línea de referencia roja en gráficos. |
 | Comparar con la probabilidad teórica | Columna *Diferencia* con signo, embudo en el gráfico y comparativa logarítmica. |
 | ¿Es equilibrada? + justificación | Función `evaluate_fairness` con veredicto prioritario, explicación en lenguaje natural y margen $1/\sqrt{n}$. |
-| Req. Común 1: Ingresar/modificar datos | Selector de tamaño de muestra y slider de sesgo en el sidebar. |
+| Req. Común 1: Ingresar/modificar datos | Selector de tamaño (10, 100, 1.000, 10.000), opción *"Otra cantidad"* con campo numérico libre (1 a 100.000) y slider de sesgo en el sidebar. |
 | Req. Común 2: Resultados claros e interpretados | Veredicto destacado al inicio, rótulo del experimento y advertencia ante bajo $n$. |
-| Req. Común 3: Cálculos matemáticamente correctos | Módulo desacoplado `core/simulation.py` validado con 18 tests en `pytest`. |
+| Req. Común 3: Cálculos matemáticamente correctos | Módulo desacoplado `core/simulation.py` validado con **22 tests** en `pytest`. |
 | Req. Común 4: Conceptos de probabilidad integrados | Pestaña dedicada *Teoría* con definiciones, fórmulas LaTeX y límites del modelo. |
 | Req. Común 5: Ejemplos de prueba | Modo interactivo de moneda trucada en el sidebar y suite de pruebas unitarias. |
 | Req. Común 6: Preparación para exposición oral | Pestaña *Teoría* estructurada y guion guiado paso a paso en este documento. |
